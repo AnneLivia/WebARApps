@@ -1,59 +1,134 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js"></script>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-  </head>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js"></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+</head>
+
+
+<body>
+  <!-- https://hiukim.github.io/mind-ar-js-doc/tools/compile/ -->
+  <a-scene mindar-image="imageTargetSrc: ./assets/targets/target.mind" color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+    <a-assets>
+      <video id="video1" loop="true" src="assets/Video/video.mp4"></video>
+      <video id="video2" loop="true" src="assets/Video/Nature.mp4"></video>
+      <img src="assets/image/left.png" id="left-button" />
+      <img src="assets/image/right.png" id="right-button" />
+      <img src="assets/image/play.png" id="play-button" />
+      <img src="assets/image/pause.png" id="pause-button" />
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
+      raycaster=" far: 10000; objects: .clickable;"></a-camera>
+
+    <a-entity id="the-target" mindar-image-target="targetIndex: 0">
+      <a-plane id="startOrPause" class="clickable" src="#pause-button" position="-0.00008 0.68091 0.00733"
+        height="0.552" width="1" rotation="" material="" geometry="primitive: circle" scale="0.1 0.1 0.1"></a-plane>
+      <a-plane id="buttonPlaneLeft" src="#left-button" class="clickable" position="-0.34564 0.681 0.007" height="0.552"
+        width="1" rotation="" material="" geometry="primitive: circle" scale="0.1 0.1 0.1"></a-plane>
+      <a-entity id="item1" visible="true">
+        <a-video src="#video1" position="0 0 0" rotation="0 0 0" video-handler></a-video>
+      </a-entity>
+      <a-entity id="item2" visible="false">
+        <a-video src="#video2" position="0 0 0" rotation="0 0 0" video-handler></a-video>
+      </a-entity>
+      <a-plane id="buttonPlaneRight" src="#right-button" class="clickable" position="0.346 0.681 0.007" height="0.552"
+        width="1" material="" rotation="" geometry="primitive: circle" scale="0.1 0.1 0.1"></a-plane>
+    </a-entity>
+  </a-scene>
+
   <script>
+    const itens = document.querySelector("#the-target");
+    const leftButton = document.querySelector("#buttonPlaneLeft");
+    const rightButton = document.querySelector("#buttonPlaneRight");
+    const startOrPauseButton = document.querySelector("#startOrPause");
+
+    let activeItem = 1;
+
+    const showItem = (item) => {
+      for (let i = 1; i <= 2; i++) {
+        console.log(item === i)
+        document.querySelector("#item" + i).setAttribute('visible', item === i);
+        if (item === i) {
+          document.querySelector("#video" + i).play();
+        } else {
+          document.querySelector("#video" + i).pause();
+        }
+      }
+    }
+
+    leftButton.addEventListener('click', () => {
+      startOrPauseButton.setAttribute("src", "#pause-button")
+      activeItem -= 1;
+      if (activeItem < 1)
+        activeItem = 2;
+      showItem(activeItem);
+    });
+
+    rightButton.addEventListener('click', () => {
+      startOrPauseButton.setAttribute("src", "#pause-button")
+      activeItem += 1;
+      if (activeItem > 2)
+        activeItem = 1;
+      showItem(activeItem);
+    });
+
+
+    startOrPauseButton.addEventListener('click', () => {
+
+      const srcFromStartPause = startOrPauseButton.getAttribute("src");
+
+      if (srcFromStartPause === "#pause-button") {
+        startOrPauseButton.setAttribute("src", "#play-button")
+        document.querySelector("#video" + activeItem).pause();
+      } else {
+        startOrPauseButton.setAttribute("src", "#pause-button")
+        document.querySelector("#video" + activeItem).play();
+      }
+    });
+
+
     AFRAME.registerComponent('video-handler', {
       init: function () {
         let el = this.el;
         const target = document.querySelector('#the-target');
-        const video = document.querySelector('#video');
-        video.pause();
+        const video1 = document.querySelector('#video1');
+        const video2 = document.querySelector('#video2');
+
+        video1.pause();
+        video2.pause();
+
         target.addEventListener('targetFound', function () {
           console.log('Target found!');
-          video.play();
+          if (activeItem === 1) {
+            video1.play();
+          } else {
+            video2.play();
+          }
         });
+
         target.addEventListener('targetLost', function () {
           console.log('target lost!');
-          video.pause();
+          if (activeItem === 1) {
+            video1.pause();
+            video1.currentTime = 0;
+          } else {
+            video2.pause();
+            video2.currentTime = 0;
+          }
         });
       },
     });
+
+
   </script>
-  <body>
-    <!-- https://hiukim.github.io/mind-ar-js-doc/tools/compile/ -->
-    <a-scene
-      mindar-image="imageTargetSrc: ./assets/targets/nylon.mind"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-      <a-assets>
-        <!-- <img id="card" src="./assets/image/nylon.jpg" />"-->
-        <video
-          id="video"
-          loop="true"
-          src="assets/Video/videoplayback.mp4"
-        ></video>
-      </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+</body>
 
-      <a-entity id="the-target" mindar-image-target="targetIndex: 0">
-        <!-- <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>-->
-        <a-video
-          src="#video"
-          position="0 0 0"
-          rotation="0 10 0"
-          video-handler
-        ></a-video>
-      </a-entity>
-    </a-scene>
-  </body>
 </html>
