@@ -11,9 +11,10 @@
 
 <body>
   <!-- https://hiukim.github.io/mind-ar-js-doc/tools/compile/ -->
-  <a-scene mindar-image="imageTargetSrc: ./assets/targets/target.mind" color-space="sRGB"
+  <a-scene mindar-image="imageTargetSrc: assets/targets/target.mind" color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+    device-orientation-permission-ui="enabled: false" inspector="" keyboard-shortcuts="" screenshot=""
+    aframe-inspector-removed-embedded="undefined">
     <a-assets>
       <a-asset-item id="3Dmodel" src="./assets//3DModel/scene.gltf"></a-asset-item>
     </a-assets>
@@ -21,8 +22,8 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model rotation="" position="0.08728 -0.21143 0.04817" scale="0.4 0.4 0.4" src="#3Dmodel"
-        gltf-model="./assets//3DModel/scene.gltf">
+      <a-gltf-model rotation="" position="-0.00034 -0.63919 -0.033" scale="0.008 0.008 0.008" src="#3Dmodel"
+        gltf-model="./assets//3DModel/scene.gltf" animation-mixer="">
       </a-gltf-model>
     </a-entity>
   </a-scene>
